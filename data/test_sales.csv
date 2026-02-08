@@ -1,0 +1,4 @@
+order_id,product_id,order_date,quantity_sold,revenue,customer_segment
+O1,Widget-A,2025-01-01,50,2500,Enterprise
+O2,Widget-B,2025-01-02,30,1500,SMB
+O3,Widget-A,2025-01-03,20,1000,Consumer
