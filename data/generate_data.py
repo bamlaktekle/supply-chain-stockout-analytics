@@ -4,7 +4,7 @@ import numpy as np
 np.random.seed(42)
 
 # ---- Basic dimensions ----
-num_products = 50
+num_products = 200
 num_warehouses = 4
 num_days = 90   # 3 months
 num_suppliers = 10
