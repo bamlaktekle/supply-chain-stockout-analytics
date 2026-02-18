@@ -1,19 +1,79 @@
-# supply-chain-stockout-analytics
+# Supply Chain Stockout Analytics
 
-Goal: Build a cloud-based analytics pipeline to predict stockouts and estimate lost revenue for a fictional retailer.
+## 1. Business Problem
 
-Stack: BigQuery, dbt, Python, Looker Studio.
+Retailers and distributors lose money when popular products go out of stock or sit in the wrong warehouses.  
+The goal of this project is to **identify which products and warehouses are riskiest, estimate the revenue at risk from stockouts, and evaluate supplier performance**, using an analytics-engineering style pipeline.
 
-## Week 1 Summary
+This is a simulated but realistic analytics project designed to showcase data analytics and analytics engineering skills for roles like Data Analyst, Analytics Engineer, and Data/Cloud SWE.
 
-Data:
-- Generated synthetic retail supply chain data:
-  - ~500 sales rows across 50 products and 3 customer segments
-  - ~18,000 inventory snapshot rows across 4 warehouses over 90 days
-  - 50 product–supplier lead time records
+---
 
-Key findings so far:
-- Identified top 10 highest-risk SKUs by stockout frequency.
-- Calculated 7-day potential lost revenue by product using sales joined to low-stock inventory.
-- Built window-function queries to track stock level changes and cumulative revenue over time.
+## 2. Data & Modeling
 
+### Synthetic Dataset
+
+All data is generated with Python to resemble a mid‑size retailer:
+
+- **Sales**
+  - ~500 sales transactions
+  - ~200 SKUs (`Widget-001` …) across multiple customer segments
+  - Fields: `order_id`, `product_id`, `order_date`, `quantity_sold`, `revenue`, `customer_segment`
+- **Inventory**
+  - Daily inventory snapshots over 90 days
+  - 4 warehouses (e.g., LA-West, LA-East, Chicago, Dallas)
+  - Fields: `product_id`, `warehouse_id`, `snapshot_date`, `stock_on_hand`, `reorder_point`, `safety_stock`
+- **Lead times / suppliers**
+  - ~200 product–supplier relationships
+  - Fields: `product_id`, `supplier_id`, `avg_lead_days`, `reliability_score`, `cost_per_unit`
+
+### BigQuery Tables
+
+Raw data is stored in Google BigQuery:
+
+- `raw_sales`
+- `raw_inventory`
+- `raw_lead_times`
+
+### Analytics Views (Model Layer)
+
+Analytics-ready views are built on top of the raw tables:
+
+- `vw_inventory_risk`  
+  Product/warehouse‑level **stockout risk scores**  
+  - `risk_days`, `total_days`, `risk_rate` per `(product_id, warehouse_id)`
+- `vw_lost_revenue_estimates`  
+  Product‑level **potential lost revenue**, approximated by joining low‑stock inventory snapshots to trailing 7‑day sales
+- `vw_supplier_performance`  
+  Supplier‑level **reliability and cost metrics**  
+  - `num_products`, `avg_lead_days`, `avg_reliability`, `avg_cost_per_unit` per `supplier_id`
+
+These views are the primary sources used by Looker Studio.
+
+---
+
+## 3. Architecture
+
+High‑level pipeline:
+
+1. **Data generation (Python)**
+   - `generate_data.py` creates `raw_sales.csv`, `raw_inventory.csv`, and `raw_lead_times.csv`.
+2. **Ingestion (BigQuery)**
+   - CSVs are loaded into `supply_chain_raw.raw_*` tables.
+3. **Modeling (BigQuery SQL)**
+   - `CREATE OR REPLACE VIEW` statements define `vw_inventory_risk`, `vw_lost_revenue_estimates`, and `vw_supplier_performance`.
+4. **Visualization (Looker Studio)**
+   - Looker Studio connects directly to the `vw_*` views for live dashboards.
+
+Text diagram:
+
+```text
+Python (generate_data.py)
+        ↓
+CSV files (sales, inventory, lead_times)
+        ↓
+BigQuery raw tables (raw_sales, raw_inventory, raw_lead_times)
+        ↓
+BigQuery views (vw_inventory_risk, vw_lost_revenue_estimates, vw_supplier_performance)
+        ↓
+Looker Studio dashboards (Overview, Product Risk, Supplier Performance)
