@@ -77,3 +77,48 @@ BigQuery raw tables (raw_sales, raw_inventory, raw_lead_times)
 BigQuery views (vw_inventory_risk, vw_lost_revenue_estimates, vw_supplier_performance)
         ↓
 Looker Studio dashboards (Overview, Product Risk, Supplier Performance)
+
+## 4. Tech Stack
+Python – pandas, NumPy for synthetic data generation
+
+Google BigQuery – cloud data warehouse, SQL analytics
+
+BigQuery Views – lightweight modeling / analytics engineering layer
+
+Looker Studio – interactive dashboards and stakeholder‑friendly visuals
+
+Git + GitHub – version control for SQL, Python, and documentation
+
+--- 
+
+## 5. Dashboards
+
+## Overview
+Answers: “Which products and warehouses are riskiest, and where is the revenue risk?”
+
+- KPI cards summarizing:
+- Total risk_days across all product/warehouse pairs
+- Average risk_rate
+- Table of highest‑risk (product_id, warehouse_id) combinations
+- Table of products with the highest potential lost revenue (vw_lost_revenue_estimates)
+- Controls to filter by product_id and warehouse_id
+
+## Product Risk 
+Answers: “Which SKUs drive most stockout risk and revenue exposure?”
+
+- Table of SKUs with:
+- risk_days, risk_rate
+- Bar chart of top products by potential_lost_revenue
+- Filters to focus on specific SKUs or warehouses
+
+## Supplier Performance
+Answers: “How do suppliers trade off cost vs reliability?”
+
+- Table of suppliers with:
+  - num_products, avg_lead_days, avg_reliability, avg_cost_per_unit
+
+- Bubble (scatter) chart:
+
+  - X‑axis: avg_cost_per_unit
+  - Y‑axis: avg_reliability
+  - Bubble size: num_products
